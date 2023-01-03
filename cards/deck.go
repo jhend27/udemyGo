@@ -5,13 +5,20 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+
+	// "os"
 	"strings"
 	"time"
 )
 
+type card struct {
+	name string
+	suit string
+}
+
 // create a new type of 'deck'
 // which is a slice of strings
-type deck []string
+type deck []card
 
 func newDeck() deck {
 	cards := deck{}
@@ -21,7 +28,7 @@ func newDeck() deck {
 
 	for _, suit := range cardSuits {
 		for _, value := range cardValues {
-			cards = append(cards, value+" of "+suit)
+			cards = append(cards, card{value, suit})
 		}
 	}
 	return cards
@@ -29,7 +36,7 @@ func newDeck() deck {
 
 func (d deck) print() {
 	for i, card := range d {
-		fmt.Println(i, card)
+		fmt.Println(i, card.name, "of", card.suit)
 	}
 }
 
@@ -38,7 +45,12 @@ func deal(d deck, handSize int) (deck, deck) {
 }
 
 func (d deck) toString() string {
-	return strings.Join([]string(d), ",")
+	deckStrings := []string{}
+	for _, card := range d {
+		cardString := card.name + " of " + card.suit
+		deckStrings = append(deckStrings, cardString)
+	}
+	return strings.Join(deckStrings, ",")
 }
 
 func (d deck) saveToFile(filename string) error {
@@ -52,7 +64,15 @@ func newDeckFromFile(filename string) deck {
 		os.Exit(1)
 	}
 	s := strings.Split(string(bs), ",")
-	return deck(s)
+
+	d := deck{} 
+
+	for _, c := range s {
+		a := strings.Split(c, " of ")
+		d = append(d, card{a[0], a[1]})
+
+	}
+	return d
 }
 
 func (d deck) shuffle() {
